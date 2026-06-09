@@ -1,0 +1,44 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-signal: #FF6B2B;
+  --color-frost: #C8D8E8;
+  --font-mono: "Space Mono", monospace;
+  --font-sans: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+}
+
+:root {
+  --background: #000000;
+  --foreground: #C8D8E8;
+  --border: rgba(200, 216, 232, 0.06);
+  --primary: #FF6B2B;
+  --primary-foreground: #000000;
+}
+
+* {
+  font-family: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: #000000;
+  color: #C8D8E8;
+}
+
+.scanline-overlay {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0 0.75' numOctaves='1' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.78  0 0 0 0 0.85  0 0 0 0 0.91  0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+.bg-grid {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.05 0.05' numOctaves='1' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.78  0 0 0 0 0.85  0 0 0 0 0.91  0 0 0 0.3 0'/></filter><rect width='100%25' height='100%25' filter='url(%23g)'/></svg>");
+}

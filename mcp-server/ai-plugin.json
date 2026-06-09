@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "OmniDispatch",
+  "name_for_model": "omnidispatch",
+  "description_for_human": "Orchestrates technician dispatches and visualizes routing on maps for critical infrastructure failures.",
+  "description_for_model": "Plugin to list technician assignments and render interactive maps for dispatch planning during infrastructure outages.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "http://localhost:3000/openapi.json"
+  },
+  "logo_url": "http://localhost:3000/logo.png",
+  "contact_email": "support@omnidispatch.com",
+  "legal_info_url": "http://localhost:3000/legal"
+}

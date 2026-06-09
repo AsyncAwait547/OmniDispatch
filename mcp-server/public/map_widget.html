@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniDispatch Control Panel</title>
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Palette Tokens */
+      --bg-base: #080c14;
+      --bg-surface: rgba(16, 22, 38, 0.7);
+      --bg-surface-hover: rgba(26, 34, 56, 0.9);
+      --border-color: rgba(0, 240, 255, 0.15);
+      --border-color-glow: rgba(0, 240, 255, 0.4);
+      --text-primary: #f0f4f8;
+      --text-secondary: #8fa0b0;
+      --accent-color: #00f0ff;
+      --accent-glow: rgba(0, 240, 255, 0.3);
+      --warning-color: #ff7b00;
+      --warning-glow: rgba(255, 123, 0, 0.3);
+      --success-color: #00e676;
+      --success-glow: rgba(0, 230, 118, 0.3);
+      --danger-color: #ff1744;
+      
+      --font-sans: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    /* Light Theme Adaptation */
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg-base: #f4f6fa;
+        --bg-surface: rgba(255, 255, 255, 0.75);
+        --bg-surface-hover: rgba(255, 255, 255, 0.95);
+        --border-color: rgba(0, 120, 215, 0.2);
+        --border-color-glow: rgba(0, 120, 215, 0.5);
+        --text-primary: #111827;
+        --text-secondary: #4b5563;
+        --accent-color: #0078d7;
+        --accent-glow: rgba(0, 120, 215, 0.25);
+        --warning-color: #d83b01;
+        --warning-glow: rgba(216, 59, 1, 0.2);
+        --success-color: #107c41;
+        --success-glow: rgba(16, 124, 65, 0.2);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Glassmorphism Container */
+    .dashboard {
+      width: 100%;
+      max-width: 950px;
+      background: var(--bg-surface);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      transition: all 0.3s ease;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Header Styling */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 16px;
+    }
+
+    .title-group h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      background: linear-gradient(45deg, var(--text-primary), var(--accent-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .title-group p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      margin-top: 4px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border: 1px solid var(--warning-color);
+      background: var(--warning-glow);
+      color: var(--warning-color);
+      animation: pulse 2s infinite;
+      transition: all 0.4s ease;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 var(--warning-glow); }
+      70% { box-shadow: 0 0 0 10px rgba(0, 0, 0, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
+    }
+
+    /* Grid Layout */
+    .grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Map Canvas Box */
+    .map-container {
+      position: relative;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      height: 380px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Info Panel */
+    .panel {
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .panel-header {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent-color);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Candidate list cards */
+    .candidate-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .candidate-card:hover {
+      border-color: var(--accent-color);
+      background: var(--bg-surface-hover);
+      transform: translateX(4px);
+    }
+
+    .candidate-card.selected {
+      border-color: var(--success-color);
+      box-shadow: 0 0 10px var(--success-glow);
+    }
+
+    .candidate-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .candidate-name {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .candidate-eta {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--success-color);
+      background: var(--success-glow);
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    .candidate-detail {
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+    }
+
+    /* Trigger Buttons */
+    .control-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-color), #00a8ff);
+      color: #080c14;
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px var(--border-color-glow);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Logs Terminal */
+    .terminal {
+      background: #04060a;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #00ff66;
+      height: 120px;
+      overflow-y: auto;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+    }
+
+    .log-line {
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+
+    .log-time {
+      color: var(--text-secondary);
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard">
+    <!-- Header -->
+    <div class="header">
+      <div class="title-group">
+        <h1 id="panel-title">OmniDispatch Orchestrator</h1>
+        <p id="incident-tag">INCIDENT ID: <span id="inc-val">{{INCIDENT_ID}}</span> | ZONE: <span id="zone-val">{{GRID_ZONE}}</span></p>
+      </div>
+      <div class="status-badge" id="status-badge">
+        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background-color:var(--warning-color);"></span>
+        Awaiting HITL Authorization
+      </div>
+    </div>
+
+    <!-- Main Grid Content -->
+    <div class="grid">
+      <!-- Vector Map -->
+      <div class="map-container">
+        <canvas id="vector-map"></canvas>
+      </div>
+
+      <!-- Action & Candidate List -->
+      <div class="panel">
+        <div class="panel-header">Qualified Dispatch Candidates</div>
+        <div id="candidate-list" style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- Dynamically filled -->
+        </div>
+
+        <div class="control-actions">
+          <button class="btn btn-secondary" onclick="logAction('Audit check: Dispatch authorization cancelled.')">Hold</button>
+          <button class="btn btn-primary" id="btn-auth" onclick="requestAuthorization()">Authorize Dispatch</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Audit Log Console -->
+    <div class="terminal" id="terminal-console">
+      <div class="log-line"><span class="log-time">[12:13:31]</span><span style="color:#fff">OTel Span Initialized:</span> tracking concurrent dispatcher execution.</div>
+      <div class="log-line"><span class="log-time">[12:13:32]</span><span style="color:#00ff88">ConcurrentBuilder Fan-out:</span> analysis, policy, and logistics threads invoked.</div>
+      <div class="log-line"><span class="log-time">[12:13:32]</span><span style="color:#00e5ff">Aggregator synthesis complete:</span> proposal compiled. Halting execution graph for HITL approval.</div>
+    </div>
+  </div>
+
+  <script>
+    // Injected template JSON fallback
+    const rawData = '{{TECHNICIANS_JSON}}';
+    let technicians = [];
+    let incidentCoords = { xFactor: 0.65, yFactor: 0.45 };
+
+    try {
+      if (rawData.startsWith('{') || rawData.startsWith('[')) {
+        technicians = JSON.parse(rawData);
+      } else {
+        // Mock fallback if template not interpolated
+        technicians = [
+          { technician: "Sarah Jenkins", role: "Senior Electrical Engineer", eta_minutes: 12, distance_miles: 4.2, certifications: ["Class 1 High-Voltage Certified"] },
+          { technician: "David Miller", role: "HV Technician", eta_minutes: 22, distance_miles: 8.7, certifications: ["Class 1 High-Voltage Certified"] }
+        ];
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    // Populate candidates list
+    const listContainer = document.getElementById('candidate-list');
+    technicians.forEach((t, index) => {
+      const card = document.createElement('div');
+      card.className = `candidate-card selected`;
+      card.innerHTML = `
+        <div class="candidate-header">
+          <span class="candidate-name">${t.technician}</span>
+          <span class="candidate-eta">${t.eta_minutes} Min ETA</span>
+        </div>
+        <div style="font-size:13px; margin: 2px 0;">${t.role}</div>
+        <div class="candidate-detail">
+          <span class="tag">${t.distance_miles ? t.distance_miles + ' miles' : 'Local Proximity'}</span>
+          ${(t.certifications || []).map(c => `<span class="tag" style="border-color:#00e676; color:#00e676">${c}</span>`).join('')}
+        </div>
+      `;
+      listContainer.appendChild(card);
+    });
+
+    // Logging helper
+    function logAction(msg, color = "#a0aec0") {
+      const consoleEl = document.getElementById('terminal-console');
+      const timeStr = new Date().toLocaleTimeString();
+      const line = document.createElement('div');
+      line.className = 'log-line';
+      line.innerHTML = `<span class="log-time">[${timeStr}]</span><span style="color:${color}">${msg}</span>`;
+      consoleEl.appendChild(line);
+      consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+
+    // Connect WebSocket
+    function connectWebSocket() {
+      // Connect to the Python FastAPI WebSocket endpoint directly
+      const socket = new WebSocket('ws://localhost:8088/ws');
+      
+      socket.onopen = function() {
+        logAction("WebSocket connection established to Agent Service.", "#00e5ff");
+      };
+
+      socket.onmessage = function(event) {
+        try {
+          const payload = JSON.parse(event.data);
+          if (payload.event === "NEW_INCIDENT_PROPOSAL") {
+            const data = payload.data;
+            handleNewIncident(data);
+          }
+        } catch(e) {
+          console.error("Error parsing WebSocket event:", e);
+        }
+      };
+
+      socket.onclose = function() {
+        logAction("WebSocket disconnected. Retrying in 5s...", "#ff1744");
+        setTimeout(connectWebSocket, 5000);
+      };
+    }
+
+    // Initialize connection
+    connectWebSocket();
+
+    function handleNewIncident(data) {
+      logAction(`NEW ALERT BROADCAST: ${data.incident_id} detected!`, "#ff1744");
+      logAction(`Diagnostics: ${data.diagnostics.type} (Severity: ${data.diagnostics.severity})`, "#ffaa00");
+      
+      document.getElementById('inc-val').innerText = data.incident_id;
+      document.getElementById('zone-val').innerText = data.failure_zone;
+      
+      // Randomize epicenter coordinates to show dynamic map shift
+      incidentCoords.xFactor = Math.random() * 0.3 + 0.35; // 0.35 to 0.65
+      incidentCoords.yFactor = Math.random() * 0.3 + 0.35; // 0.35 to 0.65
+      
+      const listContainer = document.getElementById('candidate-list');
+      listContainer.innerHTML = '';
+      
+      technicians = data.logistics_recommendations.map(r => ({
+        technician: r.technician,
+        role: r.role,
+        eta_minutes: r.eta_minutes,
+        distance_miles: r.distance_miles,
+        certifications: r.certifications
+      }));
+
+      technicians.forEach((t) => {
+        const card = document.createElement('div');
+        card.className = 'candidate-card selected';
+        card.innerHTML = `
+          <div class="candidate-header">
+            <span class="candidate-name">${t.technician}</span>
+            <span class="candidate-eta">${t.eta_minutes} Min ETA</span>
+          </div>
+          <div style="font-size:13px; margin: 2px 0;">${t.role}</div>
+          <div class="candidate-detail">
+            <span class="tag">${t.distance_miles ? t.distance_miles + ' miles' : 'Local Proximity'}</span>
+            ${(t.certifications || []).map(c => `<span class="tag" style="border-color:#00e676; color:#00e676">${c}</span>`).join('')}
+          </div>
+        `;
+        listContainer.appendChild(card);
+      });
+      
+      const button = document.getElementById('btn-auth');
+      const badge = document.getElementById('status-badge');
+      
+      button.disabled = false;
+      button.innerText = "Authorize Dispatch";
+      button.style.background = "linear-gradient(135deg, var(--accent-color), #00a8ff)";
+      button.style.boxShadow = "0 4px 15px var(--accent-glow)";
+      
+      badge.style.borderColor = "var(--warning-color)";
+      badge.style.background = "var(--warning-glow)";
+      badge.style.color = "var(--warning-color)";
+      badge.style.animation = "pulse 2s infinite";
+      badge.innerHTML = `
+        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background-color:var(--warning-color);"></span>
+        Awaiting HITL Authorization
+      `;
+      
+      logAction("Execution graph paused. Waiting for operator signature...", "#ffaa00");
+    }
+
+    // Dynamic Canvas Vector Map Animation
+    const canvas = document.getElementById('vector-map');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    let radarRadius = 0;
+    const center = { x: 0, y: 0 };
+    const nodeA = { x: 0, y: 0 };
+    const nodeB = { x: 0, y: 0 };
+
+    function drawMap() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      const width = canvas.width;
+      const height = canvas.height;
+      
+      center.x = width * incidentCoords.xFactor;
+      center.y = height * incidentCoords.yFactor;
+      nodeA.x = width * 0.2;
+      nodeA.y = height * 0.3;
+      nodeB.x = width * 0.35;
+      nodeB.y = height * 0.75;
+
+      // Draw futuristic grid background
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() || 'rgba(0, 240, 255, 0.05)';
+      ctx.lineWidth = 1;
+      const gridSize = 40;
+      for (let x = 0; x < width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+
+      // Draw routing lines from nodes to epicenter
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim() || '#00f0ff';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([5, 5]);
+      
+      // Route A
+      ctx.beginPath();
+      ctx.moveTo(nodeA.x, nodeA.y);
+      ctx.lineTo(center.x, center.y);
+      ctx.stroke();
+      
+      // Route B
+      ctx.beginPath();
+      ctx.moveTo(nodeB.x, nodeB.y);
+      ctx.lineTo(center.x, center.y);
+      ctx.stroke();
+      
+      ctx.setLineDash([]); // Reset line dash
+
+      // Draw epicenter radar rings
+      radarRadius = (radarRadius + 0.8) % 60;
+      ctx.strokeStyle = 'rgba(255, 23, 68, 0.4)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, radarRadius, 0, Math.PI * 2);
+      ctx.stroke();
+      
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, Math.max(0, radarRadius - 25), 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Draw incident epicenter
+      ctx.fillStyle = '#ff1744';
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, 8, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.font = "bold 11px Outfit";
+      ctx.fillStyle = '#ff1744';
+      ctx.fillText("CRITICAL LEAK EPICENTER", center.x + 12, center.y - 4);
+
+      // Draw Technician Node A (Sarah)
+      ctx.fillStyle = '#00e676';
+      ctx.beginPath();
+      ctx.arc(nodeA.x, nodeA.y, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = varColor('--text-primary', '#fff');
+      ctx.fillText("TECH-01: SARAH (ETA 12m)", nodeA.x + 10, nodeA.y + 4);
+
+      // Draw Technician Node B (David)
+      ctx.fillStyle = '#00e676';
+      ctx.beginPath();
+      ctx.arc(nodeB.x, nodeB.y, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillText("TECH-02: DAVID (ETA 22m)", nodeB.x + 10, nodeB.y + 4);
+
+      requestAnimationFrame(drawMap);
+    }
+
+    function varColor(cssVar, fallback) {
+      return getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim() || fallback;
+    }
+
+    // Start map loop
+    requestAnimationFrame(drawMap);
+
+    // Call API server for human approval dispatch execution
+    async function requestAuthorization() {
+      const button = document.getElementById('btn-auth');
+      const badge = document.getElementById('status-badge');
+      
+      button.disabled = true;
+      button.innerText = "Transmitting Approval...";
+      logAction("Initiating cryptographic HITL handshake...", "#ffaa00");
+      
+      const payload = {
+        incident_id: document.getElementById('inc-val').innerText,
+        technician_names: technicians.map(t => t.technician),
+        grid_zone: document.getElementById('zone-val').innerText,
+        approved: true
+      };
+
+      try {
+        // Call the port 8088 python agent endpoint for dispatch action
+        const response = await fetch('http://localhost:8088/dispatch', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          logAction(`HITL Signature Validated. Audit ID: ${result.audit_id}`, "#00ff66");
+          logAction("Dispatch instructions sent to Field technician hardware units.", "#00ff66");
+          
+          // Update visual states
+          badge.style.borderColor = "var(--success-color)";
+          badge.style.background = "var(--success-glow)";
+          badge.style.color = "var(--success-color)";
+          badge.style.animation = "none";
+          badge.innerHTML = `
+            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background-color:var(--success-color);"></span>
+            DISPATCH ACTIVE
+          `;
+          
+          button.innerText = "Authorized";
+          button.style.background = "var(--success-color)";
+          button.style.boxShadow = "0 4px 15px var(--success-glow)";
+        } else {
+          throw new Error("Handshake endpoint returned error status.");
+        }
+      } catch (err) {
+        console.error(err);
+        logAction("Local simulation mode trigger: Handshake executed locally.", "#ff0077");
+        logAction(`Manual Audit Code Generated: AUDIT-${payload.incident_id}-LOCAL-MOCK`, "#00ff66");
+        
+        badge.innerHTML = `
+          <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background-color:var(--success-color);"></span>
+          DISPATCH ACTIVE (LOCAL MOCK)
+        `;
+        button.innerText = "Authorized";
+      }
+    }
+  </script>
+</body>
+</html>

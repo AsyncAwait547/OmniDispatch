@@ -1,0 +1,11 @@
+name: omnidispatch-agent
+version: 1.0.0
+entrypoint: python main.py
+port: 8088
+protocol: responses
+runtime:
+  type: container
+  image: .
+  resources:
+    cpu: 1
+    memory: 2Gi
