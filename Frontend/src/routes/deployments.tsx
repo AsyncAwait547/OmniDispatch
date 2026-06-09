@@ -27,6 +27,8 @@ const SITES = [
     region: "Oslo, NO",
     status: "OPERATIONAL",
     metric: "4,200 substations · 13s mean MTTA",
+    ping: "28ms",
+    channels: "84 active SCADA channels"
   },
   {
     code: "TELCO-APAC-02",
@@ -34,6 +36,8 @@ const SITES = [
     region: "Singapore, SG",
     status: "OPERATIONAL",
     metric: "180K cell sites · 99.998% uptime",
+    ping: "42ms",
+    channels: "1,200 cellular nodes monitored"
   },
   {
     code: "MUNI-EMG-15",
@@ -41,6 +45,8 @@ const SITES = [
     region: "Rotterdam, NL",
     status: "OPERATIONAL",
     metric: "311 hydrant zones · sub-2s dispatch",
+    ping: "15ms",
+    channels: "NFC hydrant sensor grid active"
   },
   {
     code: "WATER-NA-04",
@@ -48,6 +54,8 @@ const SITES = [
     region: "Phoenix, US",
     status: "STAGED",
     metric: "Pilot · 9,800 SCADA endpoints",
+    ping: "68ms",
+    channels: "Aqueduct pressure stream staged"
   },
 ];
 
@@ -58,10 +66,10 @@ function DeploymentsPage() {
       title="Operational across three continents."
       intro="OmniDispatch runs in regulated production environments — not labs. Every deployment is dual-region active-active with operator-owned control planes."
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {SITES.map((s) => (
           <Panel key={s.code} label={s.code} title={s.sector}>
-            <div className="flex items-center justify-between font-mono text-xs">
+            <div className="flex items-center justify-between font-mono text-xs mb-4">
               <span className="text-frost/40">{s.region}</span>
               <span
                 className={
@@ -73,6 +81,18 @@ function DeploymentsPage() {
                 ● {s.status}
               </span>
             </div>
+            
+            <div className="space-y-2 p-3 bg-black/40 border border-frost/5 rounded-xl font-mono text-[11px] sm:text-xs">
+              <div className="flex justify-between">
+                <span className="text-frost/30">MONITORING SCOPE</span>
+                <span className="text-frost/80">{s.channels}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-frost/30">TELEMETRY LATENCY</span>
+                <span className="text-signal">{s.ping}</span>
+              </div>
+            </div>
+
             <p className="mt-4 font-mono text-xs text-frost/60">{s.metric}</p>
           </Panel>
         ))}

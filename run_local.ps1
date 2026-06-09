@@ -7,22 +7,22 @@ Write-Host "==========================================================" -Foregro
 Write-Host "                OMNIDISPATCH LOCAL STARTUP" -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
 
-# 1. Start the Node.js MCP Server
-Write-Host "`n[1/2] Preparing Node.js MCP Server..." -ForegroundColor Yellow
-$McpPath = Join-Path $PSScriptRoot "mcp-server"
+# 1. Start the React Frontend Dev Server
+Write-Host "`n[1/2] Preparing React Frontend (Vite)..." -ForegroundColor Yellow
+$FrontendPath = Join-Path $PSScriptRoot "Frontend"
 
-if (-not (Test-Path (Join-Path $McpPath "node_modules"))) {
-    Write-Host "Installing Node.js dependencies (this may take a few seconds)..." -ForegroundColor DarkGray
-    Push-Location $McpPath
+if (-not (Test-Path (Join-Path $FrontendPath "node_modules"))) {
+    Write-Host "Installing Frontend dependencies (this may take a few seconds)..." -ForegroundColor DarkGray
+    Push-Location $FrontendPath
     try {
-        npm install
+        npm install --legacy-peer-deps
     } finally {
         Pop-Location
     }
 }
 
-Write-Host "Launching MCP server in a separate terminal window..." -ForegroundColor Gray
-Start-Process powershell.exe -ArgumentList "-NoExit", "-Command", "cd '$McpPath'; title 'OmniDispatch - Node.js MCP Server'; npm start"
+Write-Host "Launching React Frontend in a separate terminal window..." -ForegroundColor Gray
+Start-Process powershell.exe -ArgumentList "-NoExit", "-Command", "cd '$FrontendPath'; title 'OmniDispatch - React Frontend'; npm run dev"
 
 # 2. Start the Python Agent Service
 Write-Host "`n[2/2] Preparing Python Agent Service..." -ForegroundColor Yellow
@@ -41,7 +41,7 @@ Start-Process powershell.exe -ArgumentList "-NoExit", "-Command", "cd '$AgentPat
 
 Write-Host "`n==========================================================" -ForegroundColor Green
 Write-Host "  Success! Both services are starting in separate windows." -ForegroundColor Green
-Write-Host "  - Node.js MCP Server running at: http://localhost:3000" -ForegroundColor Green
+Write-Host "  - React Frontend running at: http://localhost:8082" -ForegroundColor Green
 Write-Host "  - Python Agent Service running at: http://localhost:8088" -ForegroundColor Green
-Write-Host "  - Map visualizer widget: http://localhost:3000/widgets/map" -ForegroundColor Green
+Write-Host "  - Live Control Room: http://localhost:8082/control-room" -ForegroundColor Green
 Write-Host "==========================================================" -ForegroundColor Green

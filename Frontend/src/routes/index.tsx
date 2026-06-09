@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { ArrowRight, Check } from "lucide-react";
@@ -92,17 +92,19 @@ function Hero() {
                 </div>
               </motion.div>
 
-              <motion.button
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                className="group bg-signal rounded-full pl-5 pr-1.5 py-1.5 flex items-center gap-2 hover:gap-3 transition-all text-black font-medium text-sm sm:text-base w-fit"
-              >
-                <span>Authorize Dispatch</span>
-                <span className="bg-black rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center transition-transform group-hover:scale-110">
-                  <ArrowRight className="w-4 h-4 text-white" />
-                </span>
-              </motion.button>
+              <Link to="/control-room">
+                <motion.button
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.8, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                  className="group bg-signal rounded-full pl-5 pr-1.5 py-1.5 flex items-center gap-2 hover:gap-3 transition-all text-black font-medium text-sm sm:text-base w-fit cursor-pointer"
+                >
+                  <span>Authorize Dispatch</span>
+                  <span className="bg-black rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center transition-transform group-hover:scale-110">
+                    <ArrowRight className="w-4 h-4 text-white" />
+                  </span>
+                </motion.button>
+              </Link>
             </div>
           </div>
         </div>

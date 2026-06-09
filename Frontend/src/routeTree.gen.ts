@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as DeploymentsRouteImport } from './routes/deployments'
+import { Route as ControlRoomRouteImport } from './routes/control-room'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ComplianceRouteImport } from './routes/compliance'
 import { Route as ArchitectureRouteImport } from './routes/architecture'
@@ -19,6 +20,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const DeploymentsRoute = DeploymentsRouteImport.update({
   id: '/deployments',
   path: '/deployments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ControlRoomRoute = ControlRoomRouteImport.update({
+  id: '/control-room',
+  path: '/control-room',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/architecture': typeof ArchitectureRoute
   '/compliance': typeof ComplianceRoute
   '/contact': typeof ContactRoute
+  '/control-room': typeof ControlRoomRoute
   '/deployments': typeof DeploymentsRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/architecture': typeof ArchitectureRoute
   '/compliance': typeof ComplianceRoute
   '/contact': typeof ContactRoute
+  '/control-room': typeof ControlRoomRoute
   '/deployments': typeof DeploymentsRoute
 }
 export interface FileRoutesById {
@@ -70,6 +78,7 @@ export interface FileRoutesById {
   '/architecture': typeof ArchitectureRoute
   '/compliance': typeof ComplianceRoute
   '/contact': typeof ContactRoute
+  '/control-room': typeof ControlRoomRoute
   '/deployments': typeof DeploymentsRoute
 }
 export interface FileRouteTypes {
@@ -80,6 +89,7 @@ export interface FileRouteTypes {
     | '/architecture'
     | '/compliance'
     | '/contact'
+    | '/control-room'
     | '/deployments'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -88,6 +98,7 @@ export interface FileRouteTypes {
     | '/architecture'
     | '/compliance'
     | '/contact'
+    | '/control-room'
     | '/deployments'
   id:
     | '__root__'
@@ -96,6 +107,7 @@ export interface FileRouteTypes {
     | '/architecture'
     | '/compliance'
     | '/contact'
+    | '/control-room'
     | '/deployments'
   fileRoutesById: FileRoutesById
 }
@@ -105,6 +117,7 @@ export interface RootRouteChildren {
   ArchitectureRoute: typeof ArchitectureRoute
   ComplianceRoute: typeof ComplianceRoute
   ContactRoute: typeof ContactRoute
+  ControlRoomRoute: typeof ControlRoomRoute
   DeploymentsRoute: typeof DeploymentsRoute
 }
 
@@ -115,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/deployments'
       fullPath: '/deployments'
       preLoaderRoute: typeof DeploymentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/control-room': {
+      id: '/control-room'
+      path: '/control-room'
+      fullPath: '/control-room'
+      preLoaderRoute: typeof ControlRoomRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -161,8 +181,19 @@ const rootRouteChildren: RootRouteChildren = {
   ArchitectureRoute: ArchitectureRoute,
   ComplianceRoute: ComplianceRoute,
   ContactRoute: ContactRoute,
+  ControlRoomRoute: ControlRoomRoute,
   DeploymentsRoute: DeploymentsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

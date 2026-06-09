@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
 export const NAV_ITEMS = [
+  { label: "Control Room", to: "/control-room" },
   { label: "Architecture", to: "/architecture" },
   { label: "Agents", to: "/agents" },
   { label: "Compliance", to: "/compliance" },
