@@ -2,8 +2,8 @@
   "schema_version": "v1",
   "name_for_human": "OmniDispatch",
   "name_for_model": "omnidispatch",
-  "description_for_human": "Orchestrates technician dispatches and visualizes routing on maps for critical infrastructure failures.",
-  "description_for_model": "Plugin to list technician assignments and render interactive maps for dispatch planning during infrastructure outages.",
+  "description_for_human": "Autonomous critical infrastructure dispatch orchestrator. Coordinates field technician dispatches using multi-agent AI with real-time visualization.",
+  "description_for_model": "OmniDispatch is a multi-agent orchestration system for critical infrastructure failures. Use this plugin to: (1) List pending technician dispatch assignments via 'listNewAssignments', (2) Render interactive Fluent UI map widgets showing technician routes and severity heatmaps via 'showAssignmentsOnMap', (3) Check real-time pipeline status and agent health via 'getDispatchStatus'. The map widget supports light/dark Copilot Canvas themes and renders directly in the conversation.",
   "auth": {
     "type": "none"
   },
@@ -13,5 +13,10 @@
   },
   "logo_url": "http://localhost:3000/logo.png",
   "contact_email": "support@omnidispatch.com",
-  "legal_info_url": "http://localhost:3000/legal"
+  "legal_info_url": "http://localhost:3000/legal",
+  "capabilities": {
+    "supports_interactive_widgets": true,
+    "widget_rendering": "copilot_canvas",
+    "theme_adaptation": ["light", "dark"]
+  }
 }

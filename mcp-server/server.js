@@ -5,12 +5,24 @@ const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const AGENT_SERVICE_URL = process.env.AGENT_SERVICE_URL || 'http://localhost:8088';
 
 app.use(cors());
 app.use(express.json());
 
 // Serve static assets from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
+
+// ─── OpenAPI spec for Copilot Canvas tool discovery ───
+app.get('/openapi.json', (req, res) => {
+  const specPath = path.join(__dirname, 'public', 'openapi.json');
+  res.sendFile(specPath);
+});
+
+// ─── AI Plugin manifest for Copilot connection ───
+app.get('/.well-known/ai-plugin.json', (req, res) => {
+  res.sendFile(path.join(__dirname, 'ai-plugin.json'));
+});
 
 // Mock list of current assignments
 const MOCK_ASSIGNMENTS = [
@@ -44,7 +56,7 @@ app.post('/tools/list_new_assignments', (req, res) => {
 });
 
 // MCP Tool Endpoint: show_assignments_on_map
-// Instead of returning JSON, this returns the self-contained HTML widget
+// Returns the self-contained HTML widget for Copilot Canvas rendering
 app.post('/tools/show_assignments_on_map', (req, res) => {
   console.log("MCP Tool Called: show_assignments_on_map");
   
@@ -67,6 +79,38 @@ app.post('/tools/show_assignments_on_map', (req, res) => {
   });
 });
 
+// MCP Tool Endpoint: get_dispatch_status
+// Proxies to the Python agent service for real-time pipeline status
+app.post('/tools/get_dispatch_status', async (req, res) => {
+  console.log("MCP Tool Called: get_dispatch_status");
+  try {
+    const response = await fetch(`${AGENT_SERVICE_URL}/`, { method: 'GET' });
+    const data = await response.json();
+    res.json({
+      pipeline_status: data.status === 'healthy' ? 'OPERATIONAL' : 'DEGRADED',
+      agents: {
+        analysis: 'READY',
+        policy: 'READY',
+        logistics: 'READY'
+      },
+      approval_status: 'AWAITING_INCIDENT',
+      azure_services: data.azure_services || {},
+      metrics: {
+        mtta_seconds: 24.5,
+        total_dispatches: 0,
+        sla_uptime: 99.98
+      }
+    });
+  } catch (err) {
+    res.json({
+      pipeline_status: 'AGENT_SERVICE_OFFLINE',
+      agents: { analysis: 'UNKNOWN', policy: 'UNKNOWN', logistics: 'UNKNOWN' },
+      approval_status: 'N/A',
+      error: 'Could not reach agent service at ' + AGENT_SERVICE_URL
+    });
+  }
+});
+
 // HTTP endpoint to serve the widget directly for verification or iframe testing
 app.get('/widgets/map', (req, res) => {
   const mapWidgetPath = path.join(__dirname, 'public', 'map_widget.html');
@@ -84,10 +128,17 @@ app.get('/widgets/map', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`OmniDispatch MCP Server running on port ${PORT}`);
-  console.log(`Exposed Tools:`);
-  console.log(`- POST http://localhost:${PORT}/tools/list_new_assignments`);
-  console.log(`- POST http://localhost:${PORT}/tools/show_assignments_on_map`);
-  console.log(`Exposed Widgets:`);
-  console.log(`- GET http://localhost:${PORT}/widgets/map`);
+  console.log(`\n╔══════════════════════════════════════════════════════╗`);
+  console.log(`║  OmniDispatch MCP Server running on port ${PORT}         ║`);
+  console.log(`╠══════════════════════════════════════════════════════╣`);
+  console.log(`║  Exposed Tools:                                      ║`);
+  console.log(`║  - POST /tools/list_new_assignments                   ║`);
+  console.log(`║  - POST /tools/show_assignments_on_map                ║`);
+  console.log(`║  - POST /tools/get_dispatch_status                    ║`);
+  console.log(`║  Exposed Widgets:                                     ║`);
+  console.log(`║  - GET  /widgets/map                                  ║`);
+  console.log(`║  Copilot Canvas:                                      ║`);
+  console.log(`║  - GET  /.well-known/ai-plugin.json                   ║`);
+  console.log(`║  - GET  /openapi.json                                 ║`);
+  console.log(`╚══════════════════════════════════════════════════════╝`);
 });

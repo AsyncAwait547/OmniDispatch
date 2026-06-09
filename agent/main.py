@@ -1,13 +1,15 @@
 import os
 import logging
 import json
+import uuid
+from datetime import datetime, timezone
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 
 # Import local agent logic and fallback state
-from agent_logic import run_dispatch_pipeline, dispatch_technicians
+from agent_logic import run_dispatch_pipeline, dispatch_technicians, get_system_status
 
 # OpenTelemetry setups (simulating Azure App Insights observability)
 from opentelemetry import trace
@@ -66,6 +68,9 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
+# In-memory dispatch history store
+dispatch_history: List[Dict[str, Any]] = []
+
 # Request / Response Schemas
 class IncidentRequest(BaseModel):
     prompt: str
@@ -105,7 +110,8 @@ def read_root():
         "status": "healthy",
         "service": "OmniDispatch Agent Service",
         "port": 8088,
-        "protocol": "responses"
+        "protocol": "responses",
+        "azure_services": get_system_status()
     }
 
 @app.post("/telemetry")
@@ -190,17 +196,43 @@ def execute_dispatch_with_approval(payload: DispatchApprovalRequest):
             
         try:
             # Trigger the tool decorated with approval_mode='always_require'
-            # (In a real system, the framework halts and wait for approval. Here we emulate the resume path)
             result = dispatch_technicians(
                 incident_id=payload.incident_id,
                 technician_names=payload.technician_names,
                 grid_zone=payload.grid_zone
             )
+            
+            # Generate dynamic audit ID and timestamp
+            audit_id = f"AUDIT-{payload.incident_id}-{uuid.uuid4().hex[:8].upper()}"
+            timestamp = datetime.now(timezone.utc).isoformat()
+            result["audit_id"] = audit_id
+            result["timestamp"] = timestamp
+            
+            # Store in dispatch history
+            history_entry = {
+                "incident_id": payload.incident_id,
+                "grid_zone": payload.grid_zone,
+                "technicians": payload.technician_names,
+                "audit_id": audit_id,
+                "timestamp": timestamp,
+                "status": "DISPATCH_ACTIVE"
+            }
+            dispatch_history.insert(0, history_entry)
+            logger.info(f"Dispatch history updated. Total entries: {len(dispatch_history)}")
+            
             return result
         except Exception as e:
             logger.exception("Error executing dispatch tool")
             span.record_exception(e)
             raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/dispatch-history")
+def get_dispatch_history():
+    """Returns the full dispatch history for audit and compliance purposes."""
+    return {
+        "total": len(dispatch_history),
+        "history": dispatch_history
+    }
 
 if __name__ == "__main__":
     import uvicorn

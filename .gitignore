@@ -1,0 +1,24 @@
+# Node modules (including frontend & mcp-server)
+node_modules/
+mcp-server/node_modules/
+mcp-server/package-lock.json
+
+# Python cache & virtualenvs
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+agent/__pycache__/
+agent/.env
+
+# Local logs
+*.log
+C:/Users/Admin/.gemini/antigravity-ide/brain/*
+temp_logs/
+
+# Build artifacts
+dist/
+build/
+.tanstack/
+.lovable/

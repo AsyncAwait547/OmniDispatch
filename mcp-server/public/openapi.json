@@ -1,0 +1,168 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OmniDispatch MCP API",
+    "description": "Model Context Protocol server for OmniDispatch. Provides tools and interactive Fluent UI widgets for critical infrastructure dispatch visualization inside Microsoft Copilot Canvas.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "OmniDispatch Team",
+      "email": "support@omnidispatch.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development MCP server"
+    }
+  ],
+  "paths": {
+    "/tools/list_new_assignments": {
+      "post": {
+        "operationId": "listNewAssignments",
+        "summary": "List pending technician dispatch assignments",
+        "description": "Returns all technician assignments that are currently pending authorization for the active incident. Each assignment includes technician name, role, certifications, ETA, routing info, and authorization status.",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "incident_id": {
+                    "type": "string",
+                    "description": "Optional incident ID to filter assignments"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "List of pending technician assignments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "assignments": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "assignment_id": { "type": "string" },
+                          "incident_id": { "type": "string" },
+                          "technician": { "type": "string" },
+                          "role": { "type": "string" },
+                          "eta_minutes": { "type": "integer" },
+                          "route": { "type": "string" },
+                          "status": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/show_assignments_on_map": {
+      "post": {
+        "operationId": "showAssignmentsOnMap",
+        "summary": "Render an interactive dispatch map widget",
+        "description": "Returns a self-contained Fluent UI HTML widget that renders an interactive map showing technician routes, incident locations, severity heatmaps, and real-time dispatch status. This widget is designed to be rendered directly inside the Microsoft Copilot Canvas.",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "incident_id": {
+                    "type": "string",
+                    "description": "Incident ID to display on the map"
+                  },
+                  "grid_zone": {
+                    "type": "string",
+                    "description": "Grid zone identifier for the incident location"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Interactive HTML widget for Copilot Canvas rendering",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "description": "Self-contained HTML document with Fluent UI components and canvas-based map visualization"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/get_dispatch_status": {
+      "post": {
+        "operationId": "getDispatchStatus",
+        "summary": "Get real-time dispatch pipeline status",
+        "description": "Returns the current status of the multi-agent dispatch pipeline, including agent execution state, approval status, and operational metrics.",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "incident_id": {
+                    "type": "string",
+                    "description": "Incident ID to check status for"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current dispatch pipeline status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pipeline_status": { "type": "string" },
+                    "agents": {
+                      "type": "object",
+                      "properties": {
+                        "analysis": { "type": "string" },
+                        "policy": { "type": "string" },
+                        "logistics": { "type": "string" }
+                      }
+                    },
+                    "approval_status": { "type": "string" },
+                    "metrics": {
+                      "type": "object",
+                      "properties": {
+                        "mtta_seconds": { "type": "number" },
+                        "total_dispatches": { "type": "integer" },
+                        "sla_uptime": { "type": "number" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

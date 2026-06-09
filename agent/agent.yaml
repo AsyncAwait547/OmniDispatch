@@ -1,11 +1,57 @@
+# ─── OmniDispatch Agent Manifest ───
+# Azure AI Foundry Hosted Agent Service configuration
+# Spec: https://learn.microsoft.com/azure/ai-services/agents/
+
 name: omnidispatch-agent
 version: 1.0.0
+description: >
+  Autonomous multi-agent system for critical infrastructure dispatch.
+  Uses ConcurrentBuilder pattern to fan out Analysis, Policy, and Logistics
+  agents in parallel, with Human-in-the-Loop (HITL) approval enforcement.
+
 entrypoint: python main.py
 port: 8088
 protocol: responses
+
 runtime:
   type: container
   image: .
   resources:
-    cpu: 1
-    memory: 2Gi
+    cpu: 2
+    memory: 4Gi
+
+# Agent orchestration configuration
+orchestration:
+  pattern: concurrent_builder
+  agents:
+    - name: analysis-agent
+      role: "IoT Telemetry Analysis & Severity Scoring"
+    - name: policy-agent
+      role: "Regulatory Compliance via Azure AI Search RAG"
+    - name: logistics-agent
+      role: "Workforce Proximity Routing via SQL MCP"
+  aggregator: custom_zero_latency
+  approval_mode: always_require
+
+# External service connections
+connections:
+  azure_openai:
+    type: azure_openai
+    deployment: gpt-4o
+    api_version: "2024-12-01-preview"
+  azure_ai_search:
+    type: azure_ai_search
+    index: omnidispatch-policies
+    query_type: semantic
+
+# Observability
+telemetry:
+  provider: opentelemetry
+  exporter: azure_application_insights
+  trace_all_spans: true
+
+# Security
+security:
+  authentication: entra_id_managed_identity
+  tool_approval:
+    dispatch_technicians: always_require
