@@ -3,7 +3,7 @@
 **Autonomous Critical Infrastructure Dispatch Orchestrator**  
 *Microsoft Agents League Hackathon 2026 — Reasoning Agents Track*
 
-> *"When a transformer overloads at 2 AM, the average utility takes 47 minutes to dispatch a repair crew. Every minute costs $9,000 in cascading damages. OmniDispatch reduces that to **3 seconds** — with full  oversight."*
+> *"When a transformer overloads at 2 AM, the average utility takes 47 minutes to dispatch a repair crew. Every minute costs $9,000 in cascading damages. OmniDispatch reduces that to **3 seconds** — with full human oversight."*
 
 ---
 
