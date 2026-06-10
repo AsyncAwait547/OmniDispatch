@@ -11,7 +11,7 @@ param baseName string = 'omnidispatch'
 param location string = resourceGroup().location
 
 @description('Azure OpenAI model deployment name')
-param openAiModelDeployment string = 'gpt-4o'
+param openAiModelDeployment string = 'gpt-4o-mini'
 
 // ─── Azure OpenAI Service ───
 resource openAi 'Microsoft.CognitiveServices/accounts@2024-04-01-preview' = {
@@ -28,12 +28,15 @@ resource openAi 'Microsoft.CognitiveServices/accounts@2024-04-01-preview' = {
 resource openAiDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-04-01-preview' = {
   parent: openAi
   name: openAiModelDeployment
-  sku: { name: 'Standard', capacity: 30 }
+  sku: {
+    name: 'Standard'
+    capacity: 10
+  }
   properties: {
     model: {
       format: 'OpenAI'
-      name: 'gpt-4o'
-      version: '2024-11-20'
+      name: 'gpt-4o-mini'
+      version: '2024-07-18'
     }
   }
 }
