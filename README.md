@@ -309,7 +309,11 @@ Copilot Canvas ←→ MCP Server (Port 3000) ←→ Agent Service (Port 8088)
 
 > 📹 [Watch the 3-minute demo video →](#) 
 
-https://github.com/user-attachments/assets/d251e3f5-88f4-47f4-9995-1e1898c0aa23
+
+
+https://github.com/user-attachments/assets/c8f56c2b-69da-46a6-8ed8-cd6bd3e1f404
+
+
 
 
 
