@@ -307,7 +307,11 @@ Copilot Canvas ←→ MCP Server (Port 3000) ←→ Agent Service (Port 8088)
 
 ## 🎬 Demo Video
 
-> 📹 [Watch the 3-minute demo video →](#) *(Add link after recording)*
+> 📹 [Watch the 3-minute demo video →](#) 
+
+https://github.com/user-attachments/assets/d251e3f5-88f4-47f4-9995-1e1898c0aa23
+
+
 
 The demo shows:
 1. A live telemetry alert arriving via WebSocket
